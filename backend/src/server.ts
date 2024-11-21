@@ -17,8 +17,8 @@ app.use((req, res, next) => {
 
 app.use(router);
 
-const port = process.env.PORT
+const PORT = 8080
 
-app.listen(port, () => {
-    console.log(`O servidor está rodando na porta http://localhost:${port}`)
+app.listen(PORT, () => {
+    console.log(`O servidor está rodando na porta http://localhost:${PORT}`)
 })

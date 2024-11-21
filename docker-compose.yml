@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: arthur
+      POSTGRES_PASSWORD: dlink11
+      POSTGRES_DB: teste_tecnico
+    volumes:
+      - teste_tecnico_pg_data:/bitnami/postgresql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - '8080:8080'
+    environment:
+      DATABASE_URL: postgresql://arthur:dlink11@postgres:5432/teste_tecnico
+    depends_on:
+      - postgres
+    command: ["npm", "run", "start"] 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - '80:3000'
+    depends_on:
+      - backend
+    command: ["npm", "run", "start"]
+
+volumes:
+  teste_tecnico_pg_data:

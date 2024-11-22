@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { calculateRoute } from "../services/calculateRoute";
 import { prisma } from "../database/prisma";
 
-// Estimar valor da corrida
 export const estimateRide = async (req: Request, res: Response): Promise<any> => {
   const { origin, destination, driverId } = req.body;
 
@@ -14,24 +13,30 @@ export const estimateRide = async (req: Request, res: Response): Promise<any> =>
       return res.status(400).json({ error: "Não foi possível calcular a rota." });
     }
 
-    const { distance, duration, originCoordinates, destinationCoordinates } = routeData;
+    const { distance, duration, originCoordinates, destinationCoordinates, googleResponse } = routeData;
 
     const distanceInKm = distance / 1000;
     const durationInMin = duration / 60;
 
-    // Buscar o motorista
-    const driver = await prisma.driver.findUnique({
-      where: { id: driverId },
+    // Buscar motoristas disponíveis
+    const drivers = await prisma.driver.findMany({
+      orderBy: {
+        ratePerKm: 'asc', // Ordenar do mais barato para o mais caro
+      },
     });
 
-    if (!driver) {
-      return res.status(404).json({ error: "Motorista não encontrado." });
-    }
+    const driverList = drivers.map(driver => {
+      const totalCost = distanceInKm * (driver.ratePerKm || 3);
+      return {
+        driverId: driver.id,
+        name: driver.name,
+        description: driver.description,
+        car: driver.vehicle,
+        rating: driver.rating,
+        totalCost,
+      };
+    });
 
-    const ratePerKm = driver.ratePerKm || 3; // Taxa 
-    const estimatedValue = distanceInKm * ratePerKm;
-
-    // latitude e longitude
     return res.status(200).json({
       origin: {
         latitude: originCoordinates.lat,
@@ -42,15 +47,9 @@ export const estimateRide = async (req: Request, res: Response): Promise<any> =>
         longitude: destinationCoordinates.lng,
       },
       distance: distanceInKm,
-      duration: durationInMin.toFixed(2),
-      options: [
-        {
-          driverId,
-          estimatedValue,
-          distance: distanceInKm,
-          duration: durationInMin.toFixed(2),
-        },
-      ],
+      duration: durationInMin.toFixed(2), 
+      drivers: driverList,
+      googleRoute: googleResponse,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {

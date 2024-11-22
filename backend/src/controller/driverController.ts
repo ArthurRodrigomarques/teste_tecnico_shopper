@@ -3,7 +3,7 @@ import { prisma } from "../database/prisma";
 
 // Novo motorista
 export const createDriver = async (req: Request, res: Response) => {
-  const { name, description, vehicle, ratePerKm, minKm } = req.body;
+  const { name, description, vehicle, ratePerKm, minKm, rating } = req.body;
 
   try {
     const newDriver = await prisma.driver.create({
@@ -11,6 +11,7 @@ export const createDriver = async (req: Request, res: Response) => {
         name, 
         description, 
         vehicle, 
+        rating,
         ratePerKm, 
         minKm 
       },

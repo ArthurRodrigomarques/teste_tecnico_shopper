@@ -8,37 +8,53 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   rides     Ride[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Rating    Rating[]
 }
 
 model Driver {
-  id        Int       @id @default(autoincrement())
-  name      String
+  id          String   @id @default(uuid()) 
+  name        String
   description String
-  vehicle   String
-  rating    Int
-  ratePerKm Float
-  minKm     Float
-  rides     Ride[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  vehicle     String
+  rating      Float?   @default(0)
+  ratePerKm   Float?
+  minKm       Float?
+  rides       Ride[]
+  ratings     Rating[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Ride {
-  id          Int       @id @default(autoincrement())
-  customer    User      @relation(fields: [customerId], references: [id])
+  id          String   @id @default(uuid()) 
+  customer    User     @relation(fields: [customerId], references: [id])
   customerId  String
-  driver      Driver?   @relation(fields: [driverId], references: [id])
-  driverId    Int?
+  driver      Driver?  @relation(fields: [driverId], references: [id])
+  driverId    String? 
   origin      String
   destination String
   distance    Float
   duration    String
   value       Float
-  createdAt   DateTime  @default(now())
+  rating      Rating? 
+  createdAt   DateTime @default(now())
+}
+
+model Rating {
+  id         String   @id @default(uuid()) 
+  ride       Ride     @relation(fields: [rideId], references: [id])
+  rideId     String   @unique
+  driver     Driver   @relation(fields: [driverId], references: [id])
+  driverId   String  
+  customer   User     @relation(fields: [customerId], references: [id])
+  customerId String
+  stars      Int 
+  comment    String?
+  createdAt  DateTime @default(now())
 }

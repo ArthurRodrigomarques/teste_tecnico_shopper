@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Driver" ALTER COLUMN "minKm" DROP NOT NULL,
+ALTER COLUMN "ratePerKm" DROP NOT NULL;

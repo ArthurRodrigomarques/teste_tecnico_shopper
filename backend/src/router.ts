@@ -29,4 +29,4 @@ router.post("/ride/estimate", estimateRide);
 //rota para confirmar a viagem
 router.patch("/ride/confirm", confirmRide);
 // Rota para obter as viagens de um cliente
-router.get("/ride/:customer_id", getCustomerRides);
+router.get("/ride/:customerId", getCustomerRides);

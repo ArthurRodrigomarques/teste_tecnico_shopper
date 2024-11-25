@@ -1,11 +1,23 @@
-import MapLayout from "@/components/mapLayout";
+import GoogleMapsComponent from "@/components/googleMapLayout";
 import SearchAddress from "@/components/searchAddress";
 
 export default function Home() {
   return (
-    <div className="grid grid-cols-[40%_60%] w-screen items-center justify-items-center bg-slate-900 overflow-hidden">
-      <SearchAddress />
-      <MapLayout />
+    <div className="flex w-full  overflow-hidden pl-[10%]">
+      
+      <div className="flex w-[80%] h-full">
+        <div className="w-[30%] h-full flex items-center justify-center p-4">
+          <SearchAddress />
+        </div>
+
+        <div className="w-[70%] h-full">
+          <GoogleMapsComponent
+            center={{ lat: -23.55052, lng: -46.633308 }} // Centro de SP
+          />
+        </div>
+      </div>
+
+  
     </div>
   );
 }

@@ -7,7 +7,7 @@ import SearchAddress from "@/components/searchAddress";
 export default function Home() {
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
-  const [customerId] = useState<string>("df8ba903-237d-4dff-8190-16cb0fd60cc6"); // Exemplo de ID do cliente, substitua pelo valor correto
+  const [customerId] = useState<string>("df8ba903-237d-4dff-8190-16cb0fd60cc6");
 
   return (
     <div className="flex w-full overflow-hidden pl-[10%]">

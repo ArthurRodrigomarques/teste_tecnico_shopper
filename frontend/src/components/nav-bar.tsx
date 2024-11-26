@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -10,31 +10,25 @@ export default function NavBar() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
+    const userId = "3981bb7d-1409-4a77-afbc-2c68ffa0d5cd";
 
-    if (storedUserId) {
-      // Fazer a requisição para a rota que retorna o usuário
-      axios
-        .get(`http://localhost:8080/get-unique-user/${storedUserId}`)
-        .then((response) => {
-          setUser(response.data); 
-        })
-        .catch((error) => {
-          console.error("Erro ao buscar o usuário:", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
+    axios
+      .get(`http://localhost:8080/get-unique-user/${userId}`)
+      .then((response) => {
+        setUser(response.data); 
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar o usuário:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Carregando...</div>;
   }
 
-  // Extrair a primeira letra do nome do usuário
   const firstLetter = user?.name ? user.name.charAt(0).toUpperCase() : "";
 
   return (
@@ -48,11 +42,11 @@ export default function NavBar() {
           {user ? (
             <div className="text-right">
               <p>{user.name}</p>
-              <p>{user.email}</p> 
+              <p>{user.email}</p>
             </div>
           ) : (
             <div className="text-right">
-              <p>Guest</p>
+              <p>Convidado</p>
             </div>
           )}
 

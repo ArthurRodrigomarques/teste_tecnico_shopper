@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import GoogleMapsComponent from "@/components/googleMapLayout";
+import GoogleMapsComponent from "@/components/GoogleMapsComponent";
 import SearchAddress from "@/components/searchAddress";
 
 export default function Home() {

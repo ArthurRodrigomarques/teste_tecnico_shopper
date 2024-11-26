@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, DirectionsRenderer } from "@react-google-maps/api";
-import api from "@/services/api"; 
+import api from "@/services/api"; // Importação do serviço API para requisições
+import MapContainer from "./MapContainer";
+import DriverCard from "./DriverCard";
+import DriverDetails from "./DriverDetails";
+import ConfirmButton from "./ConfirmButton";
 
 interface Driver {
   driverId: string;
@@ -16,21 +20,16 @@ interface Driver {
 interface MapProps {
   origin: string;
   destination: string;
-  customerId: string; 
+  customerId: string;
 }
-
-const containerStyle = {
-  width: "100%",
-  height: "70vh",
-};
 
 const apikey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customerId }) => {
   const [directions, setDirections] = useState<any>(null);
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [showDrivers, setShowDrivers] = useState(false)
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null); 
+  const [showDrivers, setShowDrivers] = useState(false); 
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
 
   useEffect(() => {
     const fetchRoute = async () => {
@@ -82,18 +81,8 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
       alert("Selecione um motorista antes de confirmar.");
       return;
     }
-  
+
     try {
-      console.log("Dados da requisição para confirmar a viagem:", {
-        customerId,
-        origin,
-        destination,
-        driver: {
-          id: selectedDriver.driverId,
-          name: selectedDriver.name,
-        },
-      });
-  
       const response = await api.patch("/ride/confirm", {
         customerId,
         origin,
@@ -103,7 +92,7 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
           name: selectedDriver.name,
         },
       });
-  
+
       if (response.status === 200) {
         alert(`Viagem confirmada com sucesso! Custo: R$${response.data.value}`);
       } else {
@@ -115,22 +104,13 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
     }
   };
 
-  const handleDriverClick = (driver: Driver) => {
-    setSelectedDriver(driver);
-  };
-
   return (
     <div>
       <LoadScript googleMapsApiKey={apikey!}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={{ lat: -23.5614744, lng: -46.6565306 }}
-          zoom={12}
-        >
-          {directions && <DirectionsRenderer directions={directions} />}
-        </GoogleMap>
+        <MapContainer directions={directions} />
       </LoadScript>
 
+      {/* Botão de confirmar */}
       {directions && !showDrivers && (
         <div className="mt-4 text-center">
           <button
@@ -142,52 +122,24 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
         </div>
       )}
 
+      {/* Lista de motoristas */}
       {showDrivers && (
         <div className="mt-5">
           <h2 className="text-2xl font-semibold">Motoristas Disponíveis:</h2>
           <div>
             {drivers.map((driver) => (
-              <div
+              <DriverCard
                 key={driver.driverId}
-                onClick={() => handleDriverClick(driver)} 
-                className="border border-gray-300 p-4 mt-4 rounded-lg cursor-pointer bg-black text-white"
-              >
-                <h3 className="text-xl font-bold">{driver.name}</h3>
-                <p>{driver.description}</p>
-                <p>
-                  <strong>Carro:</strong> {driver.car}
-                </p>
-                <p>
-                  <strong>Avaliação:</strong> {driver.rating}
-                </p>
-                <p>
-                  <strong>Custo Total:</strong> R${driver.totalCost.toFixed(2)}
-                </p>
-              </div>
+                driver={driver}
+                onClick={() => setSelectedDriver(driver)}
+              />
             ))}
           </div>
 
-          {selectedDriver && (
-            <div className="mt-5">
-              <h3 className="text-2xl font-semibold">Detalhes do Motorista Selecionado:</h3>
-              <div className="border p-4 mt-4 rounded-lg bg-gray-100">
-                <h4 className="text-xl font-bold">{selectedDriver.name}</h4>
-                <p><strong>Carro:</strong> {selectedDriver.car}</p>
-                <p><strong>Avaliação:</strong> {selectedDriver.rating}</p>
-                <p><strong>Custo Total:</strong> R${selectedDriver.totalCost.toFixed(2)}</p>
-                <p><strong>Descrição:</strong> {selectedDriver.description}</p>
-              </div>
+          {/* Exibe detalhes do motorista selecionado */}
+          {selectedDriver && <DriverDetails driver={selectedDriver} />}
 
-              <div className="mt-5 text-center">
-                <button
-                  onClick={handleConfirm}
-                  className="px-6 py-2 text-lg cursor-pointer bg-green-500 text-white rounded-lg"
-                >
-                  Confirmar Viagem
-                </button>
-              </div>
-            </div>
-          )}
+          <ConfirmButton onClick={handleConfirm} />
         </div>
       )}
     </div>

@@ -1,8 +1,7 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
-import { GoogleMap, LoadScript, DirectionsRenderer } from "@react-google-maps/api";
-import api from "@/services/api"; // Importação do serviço API para requisições
+import { LoadScript } from "@react-google-maps/api";
+import { useRouter } from "next/navigation"; 
+import api from "@/services/api"; 
 import MapContainer from "./MapContainer";
 import DriverCard from "./DriverCard";
 import DriverDetails from "./DriverDetails";
@@ -30,6 +29,7 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [showDrivers, setShowDrivers] = useState(false); 
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const router = useRouter(); // Instância do useRouter para navegação
 
   useEffect(() => {
     const fetchRoute = async () => {
@@ -95,6 +95,8 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
 
       if (response.status === 200) {
         alert(`Viagem confirmada com sucesso! Custo: R$${response.data.value}`);
+
+        router.push(`/ride-history/${customerId}`);
       } else {
         alert("Erro ao confirmar a viagem.");
       }
@@ -110,7 +112,6 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
         <MapContainer directions={directions} />
       </LoadScript>
 
-      {/* Botão de confirmar */}
       {directions && !showDrivers && (
         <div className="mt-4 text-center">
           <button
@@ -122,7 +123,6 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
         </div>
       )}
 
-      {/* Lista de motoristas */}
       {showDrivers && (
         <div className="mt-5">
           <h2 className="text-2xl font-semibold">Motoristas Disponíveis:</h2>
@@ -136,7 +136,6 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
             ))}
           </div>
 
-          {/* Exibe detalhes do motorista selecionado */}
           {selectedDriver && <DriverDetails driver={selectedDriver} />}
 
           <ConfirmButton onClick={handleConfirm} />

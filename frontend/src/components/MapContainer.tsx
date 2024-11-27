@@ -2,7 +2,7 @@ import React from "react";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 
 const containerStyle = {
-  width: "100%",
+  width: "98%",
   height: "70vh",
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LoadScript } from "@react-google-maps/api";
-import { useRouter } from "next/navigation"; 
-import api from "@/services/api"; 
+import { useRouter } from "next/navigation";
+import api from "@/services/api";
 import MapContainer from "./MapContainer";
 import DriverCard from "./DriverCard";
 import DriverDetails from "./DriverDetails";
@@ -14,6 +14,8 @@ interface Driver {
   car: string;
   rating: string;
   totalCost: number;
+  estimatedTime: string; // Tempo estimado para a corrida
+  distance: string; // Distância da corrida
 }
 
 interface MapProps {
@@ -27,9 +29,9 @@ const apikey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customerId }) => {
   const [directions, setDirections] = useState<any>(null);
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [showDrivers, setShowDrivers] = useState(false); 
+  const [showDrivers, setShowDrivers] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
-  const router = useRouter(); // Instância do useRouter para navegação
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRoute = async () => {
@@ -57,7 +59,13 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
             (result, status) => {
               if (status === google.maps.DirectionsStatus.OK) {
                 setDirections(result);
-                setDrivers(response.data.drivers);
+                setDrivers(
+                  response.data.drivers.map((driver: any) => ({
+                    ...driver,
+                    estimatedTime: response.data.duration, // Tempo total
+                    distance: response.data.distance + " km", // Distância total
+                  }))
+                );
               } else {
                 console.error("Falha ao buscar a rota:", status);
                 alert("Não foi possível renderizar a rota no mapa.");
@@ -95,7 +103,6 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
 
       if (response.status === 200) {
         alert(`Viagem confirmada com sucesso! Custo: R$${response.data.value}`);
-
         router.push(`/ride-history/${customerId}`);
       } else {
         alert("Erro ao confirmar a viagem.");

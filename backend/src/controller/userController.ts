@@ -1,6 +1,28 @@
 import { Request, Response } from "express";
 import { prisma } from "../database/prisma";
 
+export const loginOrCreateUser = async (req: Request, res: Response) => {
+  const { name, email } = req.body;
+
+  try {
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { name, email },
+      });
+    }
+
+    // Retorna o ID do usuário
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: "Erro ao criar ou buscar o usuário.", details: error });
+  }
+};
+
+
 export const createUser = async (req: Request, res: Response) => {
 
   const { name, email } = req.body;
@@ -15,18 +37,6 @@ export const createUser = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ error: "Erro ao criar o usuário.", details: error });
   }
-};
-
-
-export const getAllUser = async (_req: Request, res: Response) => {
-    try {
-        const users = await prisma.user.findMany();
-
-        res.status(200).json(users);
-
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar os usuários.", details: error });
-    }
 };
 
 
@@ -60,3 +70,4 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(400).json({ error: "Erro ao deletar o usuário.", details: error });
   }
 };
+

@@ -11,7 +11,7 @@ export const createDriver = async (req: Request, res: Response) => {
         name, 
         description, 
         vehicle, 
-        rating,
+        rating, 
         ratePerKm, 
         minKm 
       },
@@ -26,11 +26,7 @@ export const createDriver = async (req: Request, res: Response) => {
 // Todos os motoristas
 export const getAllDrivers = async (_req: Request, res: Response) => {
   try {
-    const drivers = await prisma.driver.findMany({
-      include: {
-        ratings: true, 
-      },
-    });
+    const drivers = await prisma.driver.findMany();
 
     res.status(200).json(drivers);
   } catch (error) {
@@ -45,9 +41,6 @@ export const getUniqueDriver = async (req: Request, res: Response): Promise<void
   try {
     const driver = await prisma.driver.findUnique({
       where: { id: id }, 
-      include: {
-        ratings: true,
-      },
     });
 
     if (!driver) {
@@ -62,17 +55,3 @@ export const getUniqueDriver = async (req: Request, res: Response): Promise<void
   }
 };
 
-// Atualiza a média de avaliações de um motorista
-export const updateDriverRating = async (driverId: string) => { 
-  const ratings = await prisma.rating.findMany({
-    where: { driverId },
-  });
-
-  const averageRating =
-    ratings.reduce((sum, rating) => sum + rating.stars, 0) / ratings.length || 0;
-
-  await prisma.driver.update({
-    where: { id: driverId },
-    data: { rating: averageRating },
-  });
-};

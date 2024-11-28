@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 
 interface Ride {
   id: string;
@@ -24,21 +24,21 @@ interface Driver {
 
 export default function RideHistory() {
   const { customerId } = useParams<{ customerId: string }>();
-  const [rides, setRides] = useState<Ride[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [driverId, setDriverId] = useState<string>("");
-  const [drivers, setDrivers] = useState<Driver[]>([]); 
-  const router = useRouter(); 
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  
+  const [rides, setRides] = useState<Ride[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [driverId, setDriverId] = useState<string>(searchParams.get("driverId") || ""); // Inicializa com o valor da query string
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
         const response = await axios.get("http://localhost:8080/drivers");
-        setDrivers(response.data); 
+        setDrivers(response.data);
       } catch (error) {
         console.error("Erro ao carregar motoristas:", error);
-        alert("Erro ao carregar motoristas.");
       }
     };
 
@@ -46,20 +46,20 @@ export default function RideHistory() {
   }, []);
 
   useEffect(() => {
-    if (!customerId) return; 
+    if (!customerId) return;
 
     const fetchRides = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:8080/ride/${customerId}`, {
           params: {
-            driverId: driverId,
+            driverId: driverId || undefined, // Envia apenas se houver driverId
           },
         });
-        setRides(response.data.rides); 
+        setRides(response.data.rides || []);
       } catch (error) {
         console.error("Erro ao carregar histórico de viagens:", error);
-        alert("Erro ao carregar o histórico de viagens.");
+        setRides([]);
       } finally {
         setLoading(false);
       }
@@ -68,7 +68,6 @@ export default function RideHistory() {
     fetchRides();
   }, [customerId, driverId]);
 
-  //  seleção de motorista
   const handleDriverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDriverId = e.target.value;
     setDriverId(selectedDriverId);
@@ -76,7 +75,7 @@ export default function RideHistory() {
     if (selectedDriverId) {
       router.replace(`/ride-history/${customerId}?driverId=${selectedDriverId}`);
     } else {
-      router.replace(`/ride-history/${customerId}`); 
+      router.replace(`/ride-history/${customerId}`);
     }
   };
 
@@ -86,11 +85,18 @@ export default function RideHistory() {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Histórico de Viagens</h1>
 
+      <button
+        onClick={() => router.back()}
+        className="px-4 py-2 bg-blue-500 text-white rounded mb-4"
+      >
+        Voltar
+      </button>
+
       <div className="mb-4">
         <label className="block mb-2">Selecionar Motorista:</label>
         <select
           value={driverId}
-          onChange={handleDriverChange} 
+          onChange={handleDriverChange}
           className="border p-2 rounded"
         >
           <option value="">Todos</option>
@@ -103,7 +109,7 @@ export default function RideHistory() {
       </div>
 
       <ul className="mt-6">
-        {rides.length > 0 ? (
+        {rides && rides.length > 0 ? (
           rides.map((ride) => (
             <li key={ride.id} className="border p-4 mb-4 rounded-lg shadow-md">
               <p><strong>Data:</strong> {new Date(ride.date).toLocaleString()}</p>
@@ -115,8 +121,10 @@ export default function RideHistory() {
               <p><strong>Valor:</strong> R$ {ride.value.toFixed(2)}</p>
             </li>
           ))
+        ) : driverId ? (
+          <p>Nenhuma viagem encontrada para este motorista.</p>
         ) : (
-          <p>Nenhuma viagem encontrada.</p>
+          <p>Nenhuma viagem registrada.</p>
         )}
       </ul>
     </div>

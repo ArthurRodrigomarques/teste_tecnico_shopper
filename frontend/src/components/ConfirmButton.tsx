@@ -6,7 +6,7 @@ interface ConfirmButtonProps {
 
 const ConfirmButton: React.FC<ConfirmButtonProps> = ({ onClick }) => {
   return (
-    <div className="mt-5 text-center">
+    <div className="mt-5 text-center mb-20">
       <button
         onClick={onClick}
         className="px-6 py-2 text-lg cursor-pointer bg-green-500 text-white rounded-lg"

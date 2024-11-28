@@ -14,8 +14,8 @@ interface Driver {
   car: string;
   rating: string;
   totalCost: number;
-  estimatedTime: string; // Tempo estimado para a corrida
-  distance: string; // Distância da corrida
+  estimatedTime: string; 
+  distance: string; 
 }
 
 interface MapProps {
@@ -62,8 +62,8 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
                 setDrivers(
                   response.data.drivers.map((driver: any) => ({
                     ...driver,
-                    estimatedTime: response.data.duration, // Tempo total
-                    distance: response.data.distance + " km", // Distância total
+                    estimatedTime: response.data.duration, 
+                    distance: response.data.distance + " km", 
                   }))
                 );
               } else {
@@ -105,11 +105,9 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
         alert(`Viagem confirmada com sucesso! Custo: R$${response.data.value}`);
         router.push(`/ride-history/${customerId}`);
       } else {
-        alert("Erro ao confirmar a viagem.");
       }
     } catch (error) {
       console.error("Erro ao confirmar a viagem:", error);
-      alert("Erro ao confirmar a viagem.");
     }
   };
 
@@ -119,32 +117,38 @@ const GoogleMapsComponent: React.FC<MapProps> = ({ origin, destination, customer
         <MapContainer directions={directions} />
       </LoadScript>
 
-      {directions && !showDrivers && (
+      {directions && !selectedDriver && !showDrivers && (
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowDrivers(true)}
             className="px-6 py-2 text-lg cursor-pointer bg-green-500 text-white rounded-lg"
           >
-            Confirmar
+            Confirmar viagem
           </button>
         </div>
       )}
 
-      {showDrivers && (
+      {showDrivers && !selectedDriver && (
         <div className="mt-5">
           <h2 className="text-2xl font-semibold">Motoristas Disponíveis:</h2>
-          <div>
+          <div className="mb-20">
             {drivers.map((driver) => (
               <DriverCard
                 key={driver.driverId}
                 driver={driver}
-                onClick={() => setSelectedDriver(driver)}
+                onClick={() => setSelectedDriver(driver)} 
               />
             ))}
           </div>
+        </div>
+      )}
 
-          {selectedDriver && <DriverDetails driver={selectedDriver} />}
-
+      {selectedDriver && (
+        <div className="mt-5">
+          <DriverDetails
+            driver={selectedDriver}
+            onGoBack={() => setSelectedDriver(null)}
+          />
           <ConfirmButton onClick={handleConfirm} />
         </div>
       )}

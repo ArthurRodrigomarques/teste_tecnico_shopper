@@ -40,18 +40,6 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 
-export const getAllUser = async (_req: Request, res: Response) => {
-    try {
-        const users = await prisma.user.findMany();
-
-        res.status(200).json(users);
-
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar os usuários.", details: error });
-    }
-};
-
-
 export const getUniqueUser = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
   

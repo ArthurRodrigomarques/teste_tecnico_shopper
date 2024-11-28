@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   createUser,
   deleteUser,
-  getAllUser,
   getUniqueUser,
   loginOrCreateUser,
 } from "./controller/userController";
@@ -17,7 +16,6 @@ export const router = Router();
 router.post("/register", createUser);
 router.post("/login-or-create-user", loginOrCreateUser); 
 router.delete("/delete-user", deleteUser);
-router.get("/get-all-users", getAllUser);
 router.get("/get-unique-user/:id", getUniqueUser);
 
 // Rotas do motorista

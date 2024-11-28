@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const calculateRoute = async (origin: string, destination: string) => {
-  const apikey = process.env.GOOGLE_MAPS_API_KEY;
+  const apikey = process.env.GOOGLE_API_KEY;
 
   try {
     const response = await axios.get('https://maps.googleapis.com/maps/api/directions/json', {
